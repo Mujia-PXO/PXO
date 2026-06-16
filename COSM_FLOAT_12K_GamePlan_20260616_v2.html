@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COSM FLOAT — Delivery + Flags</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg:      #181819;
+  --surface: #1E1E20;
+  --card:    #252527;
+  --alt:     #2B2B2E;
+  --border:  #3A3A3F;
+  --text:    #EFEFEF;
+  --mid:     #C8C8D0;
+  --muted:   #8A8A96;
+  --accent:  #9EC0D2;
+  --p1: #D04040; --p2: #D07830; --p3: #C8A820;
+  --p4: #7A5A9A; --p5: #2A8A9A; --p6: #5A7A30;
+  --c-session: #2A8A9A;
+  --c-scope:   #D04040;
+  --c-tbc:     #7A5A9A;
+  --c-hard:    #C8A820;
+  --c-low:     #5A7A30;
+  --font: Arial, 'Calibri', sans-serif;
+}
+
+body { background: var(--bg); color: var(--text); font-family: var(--font); font-weight: 400; font-size: 13px; line-height: 1.65; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 44px 36px 80px; }
+
+/* ── MASTHEAD ── */
+.eyebrow { font-size: 10px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+h1 { font-size: 26px; font-weight: 300; letter-spacing: 0.02em; line-height: 1.2; margin-bottom: 4px; color: var(--text); }
+h1 em { color: var(--accent); font-style: normal; }
+.subtitle { font-size: 11px; color: var(--muted); margin-bottom: 22px; font-weight: 400; }
+.meta-row { display: flex; gap: 28px; flex-wrap: wrap; margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+.meta-item .label { font-size: 9px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+.meta-item .value { font-size: 12px; color: var(--mid); font-weight: 400; }
+.meta-item .value strong { color: var(--text); font-weight: 600; }
+
+/* ── TAB NAV ── */
+.tab-nav { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 32px; gap: 4px; padding-bottom: 0; }
+.tab-btn {
+  font-family: var(--font); font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; padding: 10px 20px 12px; border: none; border-bottom: 3px solid transparent;
+  background: transparent; color: var(--muted); cursor: pointer; margin-bottom: -2px;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  border-radius: 4px 4px 0 0; display: flex; align-items: center; gap: 7px;
+}
+.tab-btn:hover { color: var(--mid); background: var(--surface); }
+.tab-btn.active {
+  color: #0A1820; background: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 700;
+}
+.tab-btn.active .cnt { background: rgba(0,0,0,0.2); color: #0A1820; border-color: transparent; }
+.tab-btn .cnt { font-size: 9px; background: var(--surface); border: 1px solid var(--border); padding: 1px 6px; border-radius: 8px; color: var(--muted); font-weight: 400; }
+
+/* ── SECTION LABEL ── */
+.sec-lbl { font-size: 9px; font-weight: 600; letter-spacing: 0.26em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; padding-bottom: 9px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.sec-lbl span { flex: 1; height: 1px; background: var(--border); }
+
+/* ── DELIVERY SCHEDULE ── */
+.timeline { position: relative; }
+.timeline::before { content: ''; position: absolute; left: 7px; top: 10px; bottom: 10px; width: 1px; background: var(--border); }
+.batch { position: relative; padding-left: 32px; margin-bottom: 36px; }
+.batch-dot { position: absolute; left: 0; top: 9px; width: 14px; height: 14px; border-radius: 50%; border: 1px solid; background: var(--bg); }
+.batch-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 3px; flex-wrap: wrap; }
+.batch-date { font-size: 20px; font-weight: 300; letter-spacing: 0.04em; }
+.batch-tag { font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; border: 1px solid; }
+.batch-sub { font-size: 11px; color: var(--muted); margin-bottom: 12px; font-style: italic; }
+.sub-batch { margin-bottom: 16px; }
+.sub-hdr { display: flex; align-items: center; gap: 9px; margin-bottom: 7px; }
+.sub-lbl { font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mid); }
+.sub-cnt { font-size: 9px; color: var(--muted); }
+.sub-rule { flex: 1; height: 1px; background: var(--border); }
+.shot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(195px, 1fr)); gap: 4px; }
+.shot { background: var(--card); border: 1px solid var(--border); padding: 6px 10px; display: flex; gap: 8px; align-items: flex-start; }
+.shot-id { font-size: 10px; font-weight: 700; min-width: 24px; padding-top: 1px; flex-shrink: 0; }
+.shot-nm { font-size: 11px; color: var(--mid); line-height: 1.3; font-weight: 400; }
+.shot-nm em { font-style: normal; font-size: 9px; color: #5A9A60; display: block; margin-top: 2px; font-weight: 600; }
+.p1c .batch-dot { border-color: var(--p1); } .p1c .batch-tag { color: var(--p1); border-color: var(--p1); } .p1c .batch-date { color: var(--p1); }
+.p2c .batch-dot { border-color: var(--p2); } .p2c .batch-tag { color: var(--p2); border-color: var(--p2); }
+.p3c .batch-dot { border-color: var(--p3); } .p3c .batch-tag { color: var(--p3); border-color: var(--p3); }
+.p6c .batch-dot { border-color: var(--p6); } .p6c .batch-tag { color: var(--mid); border-color: var(--p6); }
+.stg  .batch-dot { border-color: #5A5A7A; } .stg  .batch-tag { color: var(--muted); border-color: #5A5A7A; }
+
+/* milestones */
+.milestones { margin-top: 36px; border-top: 1px solid var(--border); padding-top: 24px; }
+.m-row { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); align-items: baseline; }
+.m-date { font-size: 12px; font-weight: 600; color: var(--text); min-width: 44px; }
+.m-bar { width: 2px; background: var(--border); align-self: stretch; flex-shrink: 0; }
+.m-desc { font-size: 12px; color: var(--mid); font-weight: 400; }
+.m-desc strong { color: var(--text); font-weight: 600; }
+.m-hard { color: var(--p1) !important; }
+
+/* ── GANTT ── */
+.gantt-wrap { margin-top: 44px; }
+.gantt-scroll { overflow-x: auto; padding-bottom: 8px; }
+.gantt-table { border-collapse: collapse; min-width: 900px; width: 100%; }
+.gantt-table th { font-size: 8px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); padding: 6px 3px; text-align: center; background: var(--surface); border: 1px solid var(--border); white-space: nowrap; }
+.gantt-table th.shot-col { text-align: left; padding-left: 10px; min-width: 160px; }
+.gantt-table td { padding: 0; border: 1px solid var(--border); font-size: 10px; }
+.gantt-table td.shot-info { padding: 4px 10px; white-space: nowrap; background: var(--surface) !important; }
+.shot-id-g { font-weight: 700; font-size: 10px; }
+.shot-nm-g { font-size: 9px; color: var(--muted); margin-top: 1px; }
+.gantt-cell { width: 28px; min-width: 28px; height: 28px; padding: 0 !important; }
+.gc-p1    { background: var(--p1); opacity: 0.85; }
+.gc-p2    { background: var(--p2); opacity: 0.85; }
+.gc-p3    { background: var(--p3); opacity: 0.85; }
+.gc-p5    { background: var(--p5); opacity: 0.85; }
+.gc-p6    { background: var(--p6); opacity: 0.85; }
+.gc-cont  { background: #444; opacity: 0.6; }
+.gc-fin   { background: #5A9A60; opacity: 0.9; }
+.gc-qc    { background: #7A5A9A; opacity: 0.7; }
+.gc-prep  { background: #333; opacity: 0.5; }
+.gantt-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; }
+.gl-item { display: flex; align-items: center; gap: 5px; font-size: 9px; color: var(--muted); font-weight: 600; }
+.gl-dot { width: 10px; height: 10px; border-radius: 1px; flex-shrink: 0; }
+.gantt-group { background: var(--surface) !important; }
+.gantt-group td { background: var(--surface); font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); padding: 5px 10px; }
+
+/* ── FLAG CARDS ── */
+.notice { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 12px 16px; font-size: 12px; color: var(--mid); line-height: 1.7; margin-bottom: 28px; font-weight: 400; }
+.notice strong { color: var(--accent); font-weight: 600; }
+.notice-warn { background: #1E0E0E; border: 1px solid #5A1A1A; border-left: 4px solid var(--c-scope); padding: 12px 16px; font-size: 12px; color: var(--mid); line-height: 1.7; margin-bottom: 28px; font-weight: 400; }
+.notice-warn strong { color: #E07070; font-weight: 600; }
+.sum-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
+.sum-chip { padding: 7px 14px; border: 1px solid var(--border); font-size: 11px; color: var(--mid); display: flex; align-items: center; gap: 7px; background: var(--surface); font-weight: 400; }
+.sum-chip strong { font-size: 16px; font-weight: 300; color: var(--text); }
+.batch-div { font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); background: var(--surface); border-left: 3px solid var(--border); padding: 7px 12px; margin: 24px 0 14px; display: flex; align-items: center; gap: 8px; }
+.flag-card { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--border); margin-bottom: 14px; overflow: hidden; }
+.flag-card.session { border-left-color: var(--c-session); }
+.flag-card.scope    { border-left-color: var(--c-scope); }
+.flag-card.tbc      { border-left-color: var(--c-tbc); }
+.flag-card.hard     { border-left-color: var(--c-hard); }
+.flag-card.lowprob  { border-left-color: var(--c-low); }
+.flag-card.global   { border-left-color: var(--accent); }
+.card-head { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.card-id { font-size: 13px; font-weight: 700; min-width: 36px; flex-shrink: 0; }
+.card-shot { flex: 1; min-width: 160px; }
+.card-sn { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.3; }
+.card-sf { font-size: 10px; color: var(--muted); margin-top: 2px; font-weight: 400; }
+.card-badges { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; margin-left: auto; }
+.prio-b { font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 2px; border: 1px solid; letter-spacing: 0.1em; white-space: nowrap; }
+.flag-t { font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 2px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+.ft-session { background: #182A2A; color: var(--c-session); border: 1px solid var(--c-session); }
+.ft-scope   { background: #2A1818; color: var(--c-scope);   border: 1px solid var(--c-scope); }
+.ft-tbc     { background: #221A28; color: var(--c-tbc);     border: 1px solid var(--c-tbc); }
+.ft-hard    { background: #28221A; color: var(--c-hard);    border: 1px solid var(--c-hard); }
+.ft-lowprob { background: #1A2218; color: var(--c-low);     border: 1px solid var(--c-low); }
+.ft-global  { background: #182028; color: var(--accent);    border: 1px solid var(--accent); }
+.card-body { display: grid; grid-template-columns: 1fr 1fr; }
+.card-note { padding: 14px 16px; border-right: 1px solid var(--border); }
+.card-ask  { padding: 14px 16px; background: var(--alt); }
+.col-lbl { font-size: 8px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+.note-txt { font-size: 12px; color: var(--mid); line-height: 1.65; font-weight: 400; }
+.ask-txt  { font-size: 12px; color: var(--text); line-height: 1.65; font-weight: 400; }
+.ask-txt strong { color: var(--accent); font-weight: 600; }
+
+/* session flag line */
+.session-flag-line { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 11px; font-weight: 600; color: var(--c-session); border-top: 1px solid var(--border); padding-top: 10px; }
+.session-flag-line::before { content: '⚑'; font-size: 12px; }
+
+@media (max-width: 680px) {
+  .card-body { grid-template-columns: 1fr; }
+  .card-note { border-right: none; border-bottom: 1px solid var(--border); }
+}
+
+.footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 10px; color: var(--muted); font-weight: 400; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">PXO Innovation Lab · COSM FLOAT · Post 6/11 WB Review</div>
+  <h1>Delivery Expectations + <em>Flag List</em></h1>
+  <div class="subtitle">Issued 06/15/2026 · Post client call</div>
+
+  <div class="meta-row">
+    <div class="meta-item"><div class="label">Total Shots</div><div class="value"><strong>73 shots</strong> · 17 working days</div></div>
+    <div class="meta-item"><div class="label">Hard Delivery</div><div class="value"><strong>07/09</strong> WB / Director 12K Review</div></div>
+    <div class="meta-item"><div class="label">12K Posting</div><div class="value"><strong>07/07</strong> PXO internal deadline</div></div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="showTab('delivery')">Delivery Expectations</button>
+    <button class="tab-btn" onclick="showTab('sessions')">Live Sessions <span class="cnt">12</span></button>
+    <button class="tab-btn" onclick="showTab('callouts')">All Callouts <span class="cnt">18</span></button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       TAB 1 — DELIVERY EXPECTATIONS
+  ═══════════════════════════════════════════ --><br>
+   
+
+  <div id="tab-delivery">
+    <div class="sec-lbl"><span></span> Shot Completion — 5 Phase Process <span></span></div>
+
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);margin-bottom:36px;border:1px solid var(--border);">
+      <div style="background:var(--surface);padding:14px 14px;">
+        <div style="font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#5A9A60;margin-bottom:6px;">Phase 1 · Complete</div>
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;">Final Notes Received</div>
+        <div style="font-size:11px;color:var(--mid);line-height:1.5;">6/12 COSM notes locked and ingested. This is the bible — note intake now closed.</div>
+      </div>
+      <div style="background:var(--surface);padding:14px 14px;">
+        <div style="font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#5A9A60;margin-bottom:6px;">Phase 2 · Complete</div>
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;">PXO Breakdown &amp; Analysis</div>
+        <div style="font-size:11px;color:var(--mid);line-height:1.5;">All notes reviewed, prioritised, and assigned across ENV / ANIM / R&amp;C departments.</div>
+      </div>
+      <div style="background:var(--card);padding:14px 14px;border-left:2px solid var(--accent);">
+        <div style="font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;">Phase 3 · Active Now</div>
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;">PXO Addressing Notes</div>
+        <div style="font-size:11px;color:var(--mid);line-height:1.5;">Team executing all 6/12 notes. Live sessions to be scheduled this week for flagged shots.</div>
+      </div>
+      <div style="background:var(--surface);padding:14px 14px;">
+        <div style="font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Phase 4 · TBC per Shot</div>
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;">12K QC Sample Render</div>
+        <div style="font-size:11px;color:var(--mid);line-height:1.5;">PXO renders every 100th–200th frame at 12K to verify technical fixes before full render.</div>
+      </div>
+      <div style="background:var(--surface);padding:14px 14px;">
+        <div style="font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Phase 5 · TBC per Shot</div>
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;">12K Full Duration Final</div>
+        <div style="font-size:11px;color:var(--mid);line-height:1.5;">Full 12K render, full duration. No changes after this point — render window is locked.</div>
+      </div>
+    </div>
+
+    <div class="sec-lbl"><span></span> Expected Delivery by Batch <span></span></div>
+	  
+	  
+	<div class="notice-warn">
+      <p> <strong>⚠️ To Cosm &nbsp;<br>
+      </strong>Please note that the following dates are forecast targets based on the current understanding of scope and an ideal production scenario. <br>
+      As notes are reviewed and additional feedback is incorporated, delivery dates may shift to accommodate the required work. <br>
+      Our goal is to maintain a healthy production pace of approximately 20 shots per week; however, the dates below should be considered planning estimates rather than committed delivery dates. <br>
+      All delivery schedules remain subject to ongoing review and will be confirmed by PXO through Alex.</p>
+    </div><br>
+	  
+	  
+
+    <div class="timeline">
+
+      <div class="batch p2c">
+        <div class="batch-dot"></div>
+        <div>
+          <div class="batch-header">
+            <div class="batch-date">06 / 19</div>
+            <div class="batch-tag">P2-1 · P2-2 · High Priority</div>
+          </div>
+          <div class="batch-sub">20 shots · 06/20–21 weekend available as 1–2 additional contingency days if needed</div>
+          <div class="sub-batch">
+            <div class="sub-hdr"><div class="sub-lbl">P2-1 · Quick / Easy</div><div class="sub-cnt">11 shots</div><div class="sub-rule"></div></div>
+            <div class="shot-grid">
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">030</div><div class="shot-nm">R1_S030_BillBedroom</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">050</div><div class="shot-nm">R1_S050_DerryDrain</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">055</div><div class="shot-nm">R1_S055_DerryDrain</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">070</div><div class="shot-nm">R1_S070_ItTitleSeq</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">150</div><div class="shot-nm">R2_S150_DerryDTIntro</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">210</div><div class="shot-nm">R2_S210_BenPunched</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">220</div><div class="shot-nm">R2_S220_SewerTease</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">270</div><div class="shot-nm">R3_S270_BevHaircut</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">290</div><div class="shot-nm">R3_S290_BensRoom</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">540</div><div class="shot-nm">R6_S540_BevFaceSmash</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">670</div><div class="shot-nm">R7_S670_ChaseGeorgie</div></div>
+            </div>
+          </div>
+          <div class="sub-batch">
+            <div class="sub-hdr"><div class="sub-lbl">P2-2 · High Priority</div><div class="sub-cnt">9 shots</div><div class="sub-rule"></div></div>
+            <div class="shot-grid">
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">280</div><div class="shot-nm">R3_S280_LakeJump</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">360</div><div class="shot-nm">R4_S360_RockFight</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">380</div><div class="shot-nm">R5_S380_DerryParade</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">440</div><div class="shot-nm">R5_S440_PokerFace</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">530</div><div class="shot-nm">R6_S530_Patricide</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">600</div><div class="shot-nm">R7_S600_ToTheWell</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">630</div><div class="shot-nm">R7_S630_StanleyLost</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">640</div><div class="shot-nm">R7_S640_LookForStan</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">680</div><div class="shot-nm">R7_S680_WaterCorpses</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="batch p2c">
+        <div class="batch-dot"></div>
+        <div>
+          <div class="batch-header">
+            <div class="batch-date">06 / 26</div>
+            <div class="batch-tag">P2-3 · P3 · P5 · Mixed</div>
+          </div>
+          <div class="batch-sub">21 shots · 06/27–28 weekend available as 1–2 additional contingency days if needed</div>
+          <div class="sub-batch">
+            <div class="sub-hdr"><div class="sub-lbl">P2-3 · High Priority</div><div class="sub-cnt">14 shots</div><div class="sub-rule"></div></div>
+            <div class="shot-grid">
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">250</div><div class="shot-nm">R3_S250_PharmaTheft</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">340</div><div class="shot-nm">R4_S340_BevCleanUp</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">400</div><div class="shot-nm">R5_S400_WelHousRally</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">410</div><div class="shot-nm">R5_S410_WellHousIntro</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">420</div><div class="shot-nm">R5_S420_LeperCrash</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">520</div><div class="shot-nm">R6_S520_KnifeReturn</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">550</div><div class="shot-nm">R6_S550_DieIfYouTry</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">590</div><div class="shot-nm">R6_S590_WellRally</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">620</div><div class="shot-nm">R7_S620_HenryFalls</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">690</div><div class="shot-nm">R7_S690_BevFloating</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">700</div><div class="shot-nm">R8_S700_FightingIt</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">730</div><div class="shot-nm">R8_S730_MindBlown</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">740</div><div class="shot-nm">R8_S740_BodiesFall</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p2)">750</div><div class="shot-nm">R8_S750_BloodOath</div></div>
+            </div>
+          </div>
+          <div class="sub-batch">
+            <div class="sub-hdr"><div class="sub-lbl">P3 · Regular · Lock-Off</div><div class="sub-cnt">4 shots</div><div class="sub-rule"></div></div>
+            <div class="shot-grid">
+              <div class="shot"><div class="shot-id" style="color:var(--p3)">010</div><div class="shot-nm">R1_S010_OpenLogos</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p3)">180</div><div class="shot-nm">R2_S180_EdLivingroom</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p3)">650</div><div class="shot-nm">R7_S650_StanAttacked</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p3)">660</div><div class="shot-nm">R7_S660_SavingStan</div></div>
+            </div>
+          </div>
+          <div class="sub-batch">
+            <div class="sub-hdr"><div class="sub-lbl">P5 · CBB · Time Permitting</div><div class="sub-cnt">4 shots</div><div class="sub-rule"></div></div>
+            <div class="shot-grid">
+              <div class="shot"><div class="shot-id" style="color:var(--p5)">060</div><div class="shot-nm">R1_S060_DrainBite</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p5)">100</div><div class="shot-nm">R1_S100_SchoolExtWS</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p5)">110</div><div class="shot-nm">R1_S110_SchoolExtBus</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p5)">120</div><div class="shot-nm">R1_S120_SchoolForest</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="batch p6c">
+        <div class="batch-dot"></div>
+        <div>
+          <div class="batch-header">
+            <div class="batch-date">07 / 03</div>
+            <div class="batch-tag">P6 · CBB · Optional</div>
+          </div>
+          <div class="batch-sub">18 shots · Best effort as capacity allows · 3 already render ready ✅</div>
+          <div class="sub-batch">
+            <div class="shot-grid">
+              <div class="shot"><div class="shot-id" style="color:var(--p6)">020</div><div class="shot-nm">R1_S020_BillHomeExt</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p6)">040</div><div class="shot-nm">R1_S040_BillBasement</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p6)">080</div><div class="shot-nm">R1_S080_SheepSlaught</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p6)">090</div><div class="shot-nm">R1_S090_SchoolExtCU</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p6)">130</div><div class="shot-nm">R1_S130_BurbsForest</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p6)">140</div><div class="shot-nm">R1_S140_BillsGarage</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p6)">190</div><div class="shot-nm">R2_S190_DerBurbBike</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p6)">240</div><div class="shot-nm">R2_S240_Forest2Alley</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p6)">260</div><div class="shot-nm">R3_S260_AlleyBandaid<em>✅ Ready to render</em></div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p6)">350</div><div class="shot-nm">R4_S350_PreRockFight</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p6)">450</div><div class="shot-nm">R5_S450_WellReveal<em>✅ Ready to render</em></div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p6)">480</div><div class="shot-nm">R6_S480_TheBreakup</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p6)">500</div><div class="shot-nm">R6_S500_HenryShotAt</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p6)">560</div><div class="shot-nm">R6_S560_SearchForBev<em>✅ Ready to render</em></div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p6)">570</div><div class="shot-nm">R6_S570_Placebo</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p6)">580</div><div class="shot-nm">R6_S580_BikeToWell</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p6)">610</div><div class="shot-nm">R7_S610_WagonOpens</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p6)">760</div><div class="shot-nm">R8_S760_EndCredits</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="batch p1c">
+        <div class="batch-dot"></div>
+        <div>
+          <div class="batch-header">
+            <div class="batch-date">07 / 05</div>
+            <div class="batch-tag">P1 · Hero Batch · Continuous</div>
+          </div>
+          <div class="batch-sub">13 shots · Running throughout all 3 weeks in parallel from 06/14 — final delivery 07/05</div>
+          <div class="sub-batch">
+            <div class="shot-grid">
+              <div class="shot"><div class="shot-id" style="color:var(--p1)">160</div><div class="shot-nm">R2_S160_AlleyToSheep</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p1)">170</div><div class="shot-nm">R2_S170_Synagogue</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p1)">200</div><div class="shot-nm">R2_S200_LibraryScare</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p1)">230</div><div class="shot-nm">R2_S230_PatrickDies</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p1)">300</div><div class="shot-nm">R3_S300_WellLeper</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p1)">305</div><div class="shot-nm">R3_S305_Balloons</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p1)">310</div><div class="shot-nm">R4_S310_BevBloodBath</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p1)">320</div><div class="shot-nm">R4_S320_BillsFloods</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p1)">390</div><div class="shot-nm">R5_S390_GaragePenny</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p1)">430</div><div class="shot-nm">R5_S430_ClownHeads</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p1)">435</div><div class="shot-nm">R5_S435_Goo and Doors</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p1)">710</div><div class="shot-nm">R8_S710_BillCaught</div></div>
+              <div class="shot"><div class="shot-id" style="color:var(--p1)">720</div><div class="shot-nm">R8_S720_FinalFight</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="batch stg">
+        <div class="batch-dot"></div>
+        <div>
+          <div class="batch-header"><div class="batch-date">07 / 07</div><div class="batch-tag">Stragglers · 12K Posting</div></div>
+          <div class="batch-sub">Final QC pass · PXO posts all 12K deliveries to venue · Any shots that bled past batch dates</div>
+        </div>
+      </div>
+
+    </div><!-- /timeline -->
+
+    <!-- milestones -->
+    <div class="milestones">
+      <div class="sec-lbl" style="border:none;margin-bottom:14px;padding:0"><span></span> Key Dates <span></span></div>
+      <div class="m-row"><div class="m-date">06/15</div><div class="m-bar"></div><div class="m-desc">Final phase begins · P1 Hero starts continuous run · All batches kick off</div></div>
+      <div class="m-row"><div class="m-date">06/19</div><div class="m-bar" style="background:var(--p2)"></div><div class="m-desc"><strong>P2-1 + P2-2</strong> — 20 shots delivered</div></div>
+      <div class="m-row"><div class="m-date">06/26</div><div class="m-bar" style="background:var(--p2)"></div><div class="m-desc"><strong>P2-3 + P3 + P5</strong> — 21 shots delivered</div></div>
+      <div class="m-row"><div class="m-date">07/03</div><div class="m-bar" style="background:var(--p6)"></div><div class="m-desc"><strong>P6 CBB batch</strong> — 18 shots, best effort as capacity allows</div></div>
+      <div class="m-row"><div class="m-date">07/05</div><div class="m-bar" style="background:var(--p1)"></div><div class="m-desc"><strong>P1 Hero batch</strong> final delivery — 13 shots</div></div>
+      <div class="m-row"><div class="m-date">07/07</div><div class="m-bar"></div><div class="m-desc">Stragglers · PXO 12K posting to venue</div></div>
+      <div class="m-row"><div class="m-date">07/09</div><div class="m-bar" style="background:var(--p1)"></div><div class="m-desc m-hard"><strong>WB / Director 12K Review — HARD DELIVERY DATE</strong></div></div>
+      <div class="m-row"><div class="m-date">07/24</div><div class="m-bar"></div><div class="m-desc">Integration Final · Contingency · Second wave for 07/09 review kickbacks</div></div>
+    </div>
+
+    <!-- GANTT -->
+    <div class="gantt-wrap">
+      <div class="sec-lbl" style="margin-top:36px"><span></span> Shot Timeline · 06/14 → 07/24 <span></span></div>
+      <div class="gantt-scroll">
+        <table class="gantt-table" id="ganttTable"></table>
+      </div>
+      <div class="gantt-legend">
+        <div class="gl-item"><div class="gl-dot" style="background:var(--p1)"></div>P1 Hero</div>
+        <div class="gl-item"><div class="gl-dot" style="background:var(--p2)"></div>P2 Priority</div>
+        <div class="gl-item"><div class="gl-dot" style="background:var(--p3)"></div>P3 Regular</div>
+        <div class="gl-item"><div class="gl-dot" style="background:var(--p5)"></div>P5 CBB</div>
+        <div class="gl-item"><div class="gl-dot" style="background:var(--p6)"></div>P6 Optional</div>
+        <div class="gl-item"><div class="gl-dot" style="background:#5A9A60"></div>12K Final</div>
+        <div class="gl-item"><div class="gl-dot" style="background:#7A5A9A"></div>QC/Fix</div>
+        <div class="gl-item"><div class="gl-dot" style="background:#444"></div>Cont.</div>
+      </div>
+    </div>
+
+  </div><!-- /tab-delivery -->
+
+  <!-- ═══════════════════════════════════════════
+       TAB 2 — LIVE SESSIONS
+  ═══════════════════════════════════════════ -->
+  <div id="tab-sessions" style="display:none">
+    <div class="sec-lbl"><span></span> Live Sessions · 12 flagged in notes <span></span></div>
+    <div class="sum-row">
+      <div class="sum-chip"><strong>13</strong> sessions flagged</div>
+      <div class="sum-chip"><strong>8</strong> P1 Hero batch</div>
+      <div class="sum-chip"><strong>5</strong> P2 Priority batch</div>
+    </div>
+
+    <div class="notice-warn">
+      <p> <strong>⚠️To Cosm <br>
+      </strong>The following live sessions have been called out in the 6/12 notes. <br>
+      PXO and COSM to align on time for each session, Alex will confirm with COSM on PXO availability.&nbsp;<br>
+      Each session must close with agreed direction and action items so PXO can execute.</p>
+    </div>
+
+    <!-- P1 -->
+    <div class="batch-div" style="border-left-color:var(--p1)"><span style="color:var(--p1)">●</span> P1 · Hero Batch · Continuous through 07/05</div>
+
+    <div class="flag-card session">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p1)">160</div>
+        <div class="card-shot"><div class="card-sn">Alley To Sheep</div><div class="card-sf">R2_S160_AlleyToSheep</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p1);border-color:var(--p1)">P1 HERO</span><span class="flag-t ft-session">Discussion SESSION</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Session Scope</div>
+          <div class="note-txt">Kirk & Lucas + Andreas / Cosm / MM — ENV + ANIM<br><br>Two open items require Cosm direction before PXO can proceed:<br>— Crash zoom into door — staccato not hard cut. PXO proposes 2D vertigo zoom effect. Cosm to confirm approach.<br>— ⚑ Wedge two tone options when eyes light up — confirm direction with Cosm before executing.<br><br>Fingers in cracks of door (image gen approach) also to be discussed. ENV and chain/smoke notes are not session-dependent and will proceed independently.</div>
+          <div class="session-flag-line">Each session must land on a direction and actionable items</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Ask</div>
+          <div class="ask-txt">Please come prepared with direction on the crash zoom style and eye tone preference. If Cosm has refs for either, please bring them. P1 Hero — please schedule ASAP.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card session">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p1)">170</div>
+        <div class="card-shot"><div class="card-sn">Synagogue</div><div class="card-sf">R2_S170_Synagogue</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p1);border-color:var(--p1)">P1 HERO</span><span class="flag-t ft-session">Discussion SESSION</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Session Scope</div>
+          <div class="note-txt">Kirk & Lucas + Andreas / Cosm — ENV<br><br>TC-locked lighting and camera changes to walk through and confirm:<br>— 01:22:05:30 — flicker all lights across dome (fixtures + window light)<br>— After flicker: turn off all bulbs as picture is placed on wall<br>— 01:22:21:28 — fade window light for 12 sec until fully black when door opens<br>— Remove last 2 cam moves at 01:22:32:04 and 01:22:37:58<br>— Let lighting decay slowly over time<br><br>This is a discussion to confirm these TCs and the intended feel before PXO executes — no FX or animation work is session-dependent.</div>
+          <div class="session-flag-line">Each session must land on a direction and actionable items</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Ask</div>
+          <div class="ask-txt">Please come with Kirk & Lucas available to confirm the lighting decay feel and camera removal. P1 Hero — please schedule ASAP.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card session">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p1)">305</div>
+        <div class="card-shot"><div class="card-sn">Balloons</div><div class="card-sf">R3_S305_Balloons</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p1);border-color:var(--p1)">P1 HERO</span><span class="flag-t ft-session">Discussion SESSION</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Session Scope</div>
+          <div class="note-txt">Winrik × Cosm — ANIM<br><br>Balloon animation direction to discuss and confirm:<br>— Balloons must not interpenetrate in wide shot<br>— Make animation less synchronized to film regarding the triangle<br>— Depth pass needed for deformation effect seen in film — Cosm to test and confirm approach<br><br>Most of the animation work can proceed; the depth pass methodology is the main item needing Cosm input.</div>
+          <div class="session-flag-line">Each session must land on a direction and actionable items</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Ask</div>
+          <div class="ask-txt">Please confirm depth pass approach in session. If Cosm has tested the deformation effect on their end, bring that result so PXO can match it.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card session">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p1)">310</div>
+        <div class="card-shot"><div class="card-sn">Bev Blood Bath</div><div class="card-sf">R4_S310_BevBloodBath</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p1);border-color:var(--p1)">P1 HERO</span><span class="flag-t ft-session">Discussion Session</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Session Scope</div>
+          <div class="note-txt">Winrik × Cosm — ANIM/FX<br><br>⚑ Blood CU explosion requires live review — this is a discussion to align on what's achievable, not an FX working session. Items to cover:<br>— When blood explodes, it should be in front of hair<br>— Remove hair tendrils at very end when blood shoots from sink<br>— Discuss hair, blood stop timing, and approach to final section<br><br>Blood FX work itself cannot be addressed in a session — PXO will take direction from this discussion and execute separately.</div>
+          <div class="session-flag-line">Each session must land on a direction and actionable items</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Ask</div>
+          <div class="ask-txt">Please come prepared to discuss what blood stop timing and final section approach Cosm has in mind. PXO will share feasibility constraints on our end. Session output = agreed approach — FX execution follows after.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card session">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p1)">430</div>
+        <div class="card-shot"><div class="card-sn">Clown Heads</div><div class="card-sf">R5_S430_ClownHeads</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p1);border-color:var(--p1)">P1 HERO</span><span class="flag-t ft-session">Discussion SESSION</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Session Scope</div>
+          <div class="note-txt">Adjust existing lighting — ENV<br><br>ENV lighting session to walk through head reveal and lighting direction:<br>— Show fewer heads at beginning — keep some hidden in shadow<br>— Make heads reveal more with lighting when Pennywise lands on coffin<br>— Refer to mockups for position, new eye design, and additional heads in cap<br><br>⚑ "Create aggressive visual change to surprise audience" — Lucas to adjust timing on Cosm side. Cosm to define what this means so PXO understands the intent.</div>
+          <div class="session-flag-line">Each session must land on a direction and actionable items</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Ask</div>
+          <div class="ask-txt">Please bring the referenced mockups and any additional context on the "aggressive visual change." Lighting direction can be locked in this session — PXO will proceed on ENV immediately after.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card session">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p1)">435</div>
+        <div class="card-shot"><div class="card-sn">Goo and Doors</div><div class="card-sf">R5_S435_Goo and Doors</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p1);border-color:var(--p1)">P1 HERO</span><span class="flag-t ft-session">Discussion Session</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Session Scope</div>
+          <div class="note-txt">Winrik × Cosm — ANIM/FX discussion<br><br>⚑ Last-minute scope addition: floating blood as doors appear — Cosm to draw what they want. This is a discussion to clarify the blood element before PXO can plan execution:<br>— Scope pushback: new blood element not in original build<br>— PXO internal proposal: reuse blood from S440 or S700 rather than a new sim<br>— Goo speed, width, surface quality, and leading edge shadow are addressable notes (not session-dependent)</div>
+          <div class="session-flag-line">Each session must land on a direction and actionable items</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Ask</div>
+          <div class="ask-txt">Please bring a blood position markup or drawing to the session. If reusing from S440/S700 is acceptable, confirm that in session so PXO can proceed. No working FX will happen in this session — outcome is direction only.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card session">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p1)">710</div>
+        <div class="card-shot"><div class="card-sn">Bill Caught</div><div class="card-sf">R8_S710_BillCaught</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p1);border-color:var(--p1)">P1 HERO</span><span class="flag-t ft-session">Discussion SESSION</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Session Scope</div>
+          <div class="note-txt">Winrik × Cosm — Arms/Hands<br><br>Discussion to align on arms and crab legs intent before PXO executes the anim pass. Notes to walk through:<br>— Arms coming out too soon — see Frame IO for correct timing<br>— Slow arm motion by 50%; hands more threatening — tension in arms and fingers<br>— One action all the way through; move smaller arms on left closer to camera<br>— Lower arms should reach higher — check interpenetration; refine retract<br>— Crab legs: eliminate too quickly at end<br><br>ENV texture pass (arms, burning skin, back lighting) is a separate note that can proceed independently.</div>
+          <div class="session-flag-line">Each session must land on a direction and actionable items</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Ask</div>
+          <div class="ask-txt">Please bring Frame IO reference for arm timing. Session will walk through the priority list — PXO will flag which notes are hard to hit within the window so Cosm can decide where to flex.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card session">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p1)">720</div>
+        <div class="card-shot"><div class="card-sn">Final Fight</div><div class="card-sf">R8_S720_FinalFight</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p1);border-color:var(--p1)">P1 HERO</span><span class="flag-t ft-session">Discussion Session</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Session Scope</div>
+          <div class="note-txt">Winrik × Cosm — FX/Camera<br><br>Floating blood: timing and position supplied by Cosm — match quality to S440. Blood animation should follow timing provided. This is a discussion to receive and confirm Cosm's blood markup before PXO executes.<br><br>Camera note (keep S720 playing longer, change S730 shot to CU of well) is an editorial/timing discussion — see Frame IO for reference. ENV (mute trash colors) is independent and does not require a session.</div>
+          <div class="session-flag-line">Each session must land on a direction and actionable items</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Ask</div>
+          <div class="ask-txt">Please supply blood position markup and Frame IO camera ref ahead of the session so PXO can review beforehand. Session output = confirmed blood timing data and camera intent.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P2 sessions -->
+    <div class="batch-div" style="border-left-color:var(--p2)"><span style="color:var(--p2)">●</span> P2 · Priority Batch · Due 06/19 → 06/26</div>
+
+    <div class="flag-card session">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p2)">050</div>
+        <div class="card-shot"><div class="card-sn">Derry Drain</div><div class="card-sf">R1_S050_DerryDrain</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p2);border-color:var(--p2)">P2-1</span><span class="flag-t ft-session">Discussion Session</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Session Scope</div>
+          <div class="note-txt">Phil × Cosm — R/C<br><br>Rain transition from house to EXT — direction needed on how the rain transition works as a comp element. ENV (boat, artworks, geo) and ANIM notes are already in progress and not session-dependent.<br><br>Transition timing and integration approach is the specific item this session needs to lock.</div>
+          <div class="session-flag-line">Each session must land on a direction and actionable items</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Ask</div>
+          <div class="ask-txt">P2-1 — deadline 06/19. Please prioritise this week. If Cosm has a reference for how the rain transition should feel, please send ahead of session.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card session">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p2)">540</div>
+        <div class="card-shot"><div class="card-sn">Bev Face Smash</div><div class="card-sf">R6_S540_BevFaceSmash</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p2);border-color:var(--p2)">P2-1</span><span class="flag-t ft-session">LIVE SESSION</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Session Scope</div>
+          <div class="note-txt">Andreas × Cosm — Light FX in hallway — ENV<br><br>Corridor lighting direction is needed before PXO can finalise the shadow and ENV approach:<br>— Corridor lighting needs to be adjusted — make shadow clearly visible<br>— Blood texture: white areas should be closer in value to red — too much contrast<br><br>ANIM notes (blood timing sync with dad, door sync to film) are not session-dependent and can proceed from the sheet notes.</div>
+          <div class="session-flag-line">Each session must land on a direction and actionable items</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Ask</div>
+          <div class="ask-txt">P2-1 — deadline 06/19. Please prioritise this week. Session is specifically to lock corridor lighting direction — most other notes can proceed independently.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card session">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p2)">600</div>
+        <div class="card-shot"><div class="card-sn">To The Well</div><div class="card-sf">R7_S600_ToTheWell</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p2);border-color:var(--p2)">P2-2</span><span class="flag-t ft-session">Live Session</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Session Scope</div>
+          <div class="note-txt">Winrik × Cosm — Rat &amp; flashlight ANIM<br><br>Flashlight animation for Part 2 can potentially be worked on and addressed in session — Cosm to provide reference so Winrik can action it live.<br><br>Rats are separately actionable by PXO from notes. ENV notes (window papering, spider web removal, floating motes) do not require a session.</div>
+          <div class="session-flag-line">Each session must land on a direction and actionable items</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Ask</div>
+          <div class="ask-txt">Please send flashlight reference ahead of the session if possible so Winrik can prepare. Flashlight animation can be addressed live if ref arrives in time. P2-2 — deadline 06/19.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card session">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p2)">620</div>
+        <div class="card-shot"><div class="card-sn">Henry Falls</div><div class="card-sf">R7_S620_HenryFalls</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p2);border-color:var(--p2)">P2-3</span><span class="flag-t ft-session">Live Session</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Session Scope</div>
+          <div class="note-txt">Winrik × Cosm — Rope ANIM<br><br>Rope animation adjustment — top of rope should not move. Flashlight animation fix also listed. These are two specific animation corrections that can be reviewed and iterated on in session:<br>— Rope: top must be pinned / not swing<br>— Flashlight: animation needs a fix pass<br><br>ENV notes (dim ceiling, bring down ceiling light, remove dust motes, spider web removal, take down overall brightness) are independent and do not require a session.</div>
+          <div class="session-flag-line">Each session must land on a direction and actionable items</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Ask</div>
+          <div class="ask-txt">P2-3 — deadline 06/26. Rope and flashlight are the session items — short session, specific scope. Please schedule with Winrik.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card session">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p2)">630</div>
+        <div class="card-shot"><div class="card-sn">Stanley Lost</div><div class="card-sf">R7_S630_StanleyLost</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p2);border-color:var(--p2)">P2-2</span><span class="flag-t ft-session">Discussion Session</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Session Scope</div>
+          <div class="note-txt">Winrik × Cosm — Drain water — FX<br><br>Water comp as a separate element — top of sprite needs to match sewer contour. Improve water quality. This is a working session to review PXO's water approach and confirm the comp methodology:<br>— Water treated as separate comp element (not fully integrated in engine)<br>— Top of water sprite must read cleanly against the sewer tube contour<br><br>ENV notes (remove metal arches, darken tube, lighting cuts) are independent and can proceed from sheet notes.</div>
+          <div class="session-flag-line">Each session must land on a direction and actionable items</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Ask</div>
+          <div class="ask-txt">P2-2 — deadline 06/19. If Cosm has water quality reference, please send ahead of session. Session will confirm PXO's approach for the water element.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card session">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p2)">670</div>
+        <div class="card-shot"><div class="card-sn">Chase Georgie</div><div class="card-sf">R7_S670_ChaseGeorgie</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p2);border-color:var(--p2)">P2-1</span><span class="flag-t ft-session">Live Session</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Session Scope</div>
+          <div class="note-txt">Winrik × Cosm — Bev Shadow — ENV<br><br>Bev shadow on wall — diffuse edges and soften. Direction on shadow quality to align on before PXO executes:<br>— Shadow should deform and take the shape of the wall, not be a flat texture stuck to it<br>— Edges should feel diffused<br><br>Note: this shadow direction also informs S700 (Georgie/Bill shadows) and S690 (Bev floating). Locking here is efficient across three shots.</div>
+          <div class="session-flag-line">Each session must land on a direction and actionable items</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Ask</div>
+          <div class="ask-txt">P2-1 — deadline 06/19. Short discussion to confirm shadow feel. Direction locked here carries forward to S700 and S690, so prioritising this session is efficient for multiple shots.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card session">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p2)">700</div>
+        <div class="card-shot"><div class="card-sn">Fighting It</div><div class="card-sf">R8_S700_FightingIt</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p2);border-color:var(--p2)">P2-3</span><span class="flag-t ft-session">Live Session</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Session Scope</div>
+          <div class="note-txt">Winrik × Cosm — Body Anim & Georgie Shadow — ENV + ANIM<br><br>Two discussion items plus one potentially actionable in session:<br>— Refine blood animation — Cosm reference needed before PXO can action. Discussion to receive and confirm the ref, not an FX working session.<br>— Georgie and Bill shadows — same direction as Bev shadow (see S670). ENV shadow work actionable once S670 direction is locked.<br>— Flashlight: better pass per Frame IO — this can potentially be addressed in session if ref is available.</div>
+          <div class="session-flag-line">Each session must land on a direction and actionable items</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Ask</div>
+          <div class="ask-txt">Please bring Cosm blood animation reference to the session. Flashlight pass can be worked on live if Frame IO ref is shared in advance. P2-3 — deadline 06/26. Shadow direction can carry from the S670 session if that happens first.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card session">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p2)">740</div>
+        <div class="card-shot"><div class="card-sn">Bodies Fall</div><div class="card-sf">R8_S740_BodiesFall</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p2);border-color:var(--p2)">P2-3</span><span class="flag-t ft-session">Discussion SESSION</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Session Scope</div>
+          <div class="note-txt">Winrik × Cosm — Body anim going down — ANIM<br><br>Discussion to confirm body animation direction before PXO executes:<br>— Bodies should not be visible before shown in film — Frame IO in-point needed<br>— Offset body falling animation; add rotation to bodies<br>— ENV: less light at start, bodies closest to bottom have less lighting<br><br>This is a direction discussion — no animation will be done live in session.</div>
+          <div class="session-flag-line">Each session must land on a direction and actionable items</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Ask</div>
+          <div class="ask-txt"><strong>Please confirm Frame IO reference before the session.</strong><br><br>Anim team needs the exact in-point to time the body reveal. Session to confirm offset and rotation style. P2-3 due 06/26.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tab-sessions -->
+
+  <!-- ═══════════════════════════════════════════
+       TAB 3 — ALL CALLOUTS
+  ═══════════════════════════════════════════ -->
+  <div id="tab-callouts" style="display:none">
+    <div class="sec-lbl"><span></span> All Flags & Callouts — 18 items <span></span></div>
+
+    <div class="sum-row">
+      <div class="sum-chip" style="border-color:var(--c-scope)"><strong style="color:var(--c-scope)">4</strong> Scope flags</div>
+      <div class="sum-chip" style="border-color:var(--c-tbc)"><strong style="color:var(--c-tbc)">7</strong> Direction TBC</div>
+      <div class="sum-chip" style="border-color:var(--c-hard)"><strong style="color:var(--c-hard)">2</strong> Hard dates</div>
+      <div class="sum-chip" style="border-color:var(--c-low)"><strong style="color:var(--c-low)">2</strong> Priority notes</div>
+      <div class="sum-chip"><strong>4</strong> Global</div>
+    </div>
+
+    <div class="batch-div" style="border-left-color:var(--p1)"><span style="color:var(--p1)">●</span> P1 · Hero Batch</div>
+
+    <div class="flag-card scope">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p1)">160</div>
+        <div class="card-shot"><div class="card-sn">Alley To Sheep</div><div class="card-sf">R2_S160_AlleyToSheep</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p1);border-color:var(--p1)">P1 HERO</span><span class="flag-t ft-scope">Scope Flag</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Flag / Note</div>
+          <div class="note-txt"><strong>[1]</strong> Crash zoom into door — staccato not hard cut.<br><br><strong>[2]</strong> Add fingers in cracks of door.</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Position / Solution</div>
+          <div class="ask-txt"><strong>[1] Crash zoom:</strong> PXO solution is a 2D Vertigo Zoom Effect in comp — methodology change from current build. Cosm sign-off needed before PXO begins.<br><br><strong>[2] Fingers:</strong> PXO proposes Image Gen / AI inpainting pass. Please confirm this approach is acceptable before executing. Both items dependent on live session direction (see Live Sessions tab, S160).</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card tbc">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p1)">230</div>
+        <div class="card-shot"><div class="card-sn">Patrick Dies</div><div class="card-sf">R2_S230_PatrickDies</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p1);border-color:var(--p1)">P1 HERO</span><span class="flag-t ft-tbc">Direction TBC</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Flag / Note</div>
+          <div class="note-txt">⚑ Camera direction TBC — wait for Cosm confirmation before executing.<br><br>Cosm is testing removing the camera move to grate — cut directly for more aggressive impact. No smooth animation — fade up then move quickly for momentum and tension. PXO cannot action camera until confirmed.<br><br>ENV work (caustics, white cord removal, metal door colour) is independent and can proceed now.</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Position / Solution</div>
+          <div class="ask-txt"><strong>⚑ PXO to update camera once reference is sent.</strong><br><br>Please confirm camera direction by 06/17 — PXO will chase if no response by then. Late confirmation risks the camera work not landing before the 07/05 P1 deadline.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card scope">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p1)">310</div>
+        <div class="card-shot"><div class="card-sn">Bev Blood Bath</div><div class="card-sf">R4_S310_BevBloodBath</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p1);border-color:var(--p1)">P1 HERO</span><span class="flag-t ft-scope">Scope Flag</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Flag / Note</div>
+          <div class="note-txt">⚑ Blood needs more realism.<br>— When blood explodes it should be in front of hair.<br>— Remove hair tendrils at very end when blood shoots from sink.<br>— Blood CU explosion requires live review — discuss hair, blood stop timing, and final section.</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Position / Solution</div>
+          <div class="ask-txt"><strong>FX team is assessing full feasibility within the render window.</strong><br><br>Live session required to lock approach on blood CU explosion (see Live Sessions tab, S310). PXO will share a clear doable/not-doable breakdown post-session. Cosm should be ready to simplify scope if time requires it.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card tbc">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p1)">390</div>
+        <div class="card-shot"><div class="card-sn">Garage Penny</div><div class="card-sf">R5_S390_GaragePenny</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p1);border-color:var(--p1)">P1 HERO</span><span class="flag-t ft-tbc">Ref Needed</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Flag / Note</div>
+          <div class="note-txt">Door closing and opening timing must match film exactly — Lucas to provide reference before PXO can action. ENV notes (highlights, red/white blanket removal) are independent and can proceed now.</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Position / Solution</div>
+          <div class="ask-txt"><strong>⚑ Please send Lucas's door reference ASAP — P1 Hero shot, door animation is fully blocked until ref is received.</strong><br><br>PXO can and will begin ENV work immediately. Please treat door ref as urgent.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card tbc">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p1)">430</div>
+        <div class="card-shot"><div class="card-sn">Clown Heads</div><div class="card-sf">R5_S430_ClownHeads</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p1);border-color:var(--p1)">P1 HERO</span><span class="flag-t ft-tbc">Direction TBC</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Flag / Note</div>
+          <div class="note-txt">⚑ Create aggressive visual change to surprise audience — Lucas to adjust timing on Cosm side.<br><br>PXO cannot interpret or execute the "aggressive visual change" without knowing what Cosm has in mind. Mockups cover position and eye design — that work can proceed. The "aggressive change" is the undefined element that needs direction.</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Position / Solution</div>
+          <div class="ask-txt"><strong>Need direction on new timing before PXO can action the visual change.</strong><br><br>PXO can begin ENV lighting and head reveal work independently. Please bring a clear description or reference to the live session so PXO can execute without ambiguity.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card scope">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p1)">435</div>
+        <div class="card-shot"><div class="card-sn">Goo and Doors</div><div class="card-sf">R5_S435_Goo and Doors</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p1);border-color:var(--p1)">P1 HERO</span><span class="flag-t ft-scope">Scope Flag</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Flag / Note</div>
+          <div class="note-txt">As doors appear add floating blood — project animated texture not sim (stock blood drip, flip so blood floats up). Cosm to draw what they want.<br><br>⚑ Last-minute addition — new FX element not in original scope. PXO internal methodology: 2D animated texture approach rather than full sim to save render time.</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Position / Solution</div>
+          <div class="ask-txt"><strong>PXO suggests reusing floating blood from S440 or S700 rather than a new build.</strong><br><br>If Cosm requires a custom element, please bring a blood position markup to the session. Goo speed and arrival point also need live session direction before PXO can finalise. Note: PXO does not bake in any fades — Cosm handles all fades on this shot.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card tbc">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p1)">320</div>
+        <div class="card-shot"><div class="card-sn">Bill's Floods</div><div class="card-sf">R4_S320_BillsFloods</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p1);border-color:var(--p1)">P1 HERO</span><span class="flag-t ft-tbc">Direction Needed</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Flag / Note</div>
+          <div class="note-txt">Add fluorescent light flicker as Pennywise approaches — should clearly change mood.<br><br>Need additional direction on lighting and timing before PXO can action. Other ENV notes (hallway paper swap, ceiling light removal, yellow object, Georgie room fade) are independent and can proceed.</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Position / Solution</div>
+          <div class="ask-txt"><strong>Please confirm timing and desired mood for the fluorescent flicker effect.</strong><br><br>PXO will begin all other ENV work immediately. The flicker is the only item pending direction — a quick note or timecode range from Cosm will unblock it. P1 Hero — please treat as priority.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="batch-div" style="border-left-color:var(--p2)"><span style="color:var(--p2)">●</span> P2 · Priority Batch</div>
+
+    <div class="flag-card hard">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p2)">280</div>
+        <div class="card-shot"><div class="card-sn">Lake Jump</div><div class="card-sf">R3_S280_LakeJump</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p2);border-color:var(--p2)">P2-2</span><span class="flag-t ft-hard">Hard Date</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Flag / Note</div>
+          <div class="note-txt">⚑ Target final comp delivery 06/22 — earlier than the broader P2-2 batch deadline, flagged internally due to multi-part complexity: water, vegetation, camera timing, and the S280–290 fade tail for Cosm.</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Position / Solution</div>
+          <div class="ask-txt"><strong>PXO is targeting 06/22 final comp delivery on S280.</strong><br><br>Critical path items: water transition, camera timing (shot 2 and 3), vegetation kill. The fade between S280–290 (Part 3 tail) is COSM-handled — please prepare that on your end once the 06/22 comp is posted.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card tbc">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p1)">300</div>
+        <div class="card-shot"><div class="card-sn">Well Leper</div><div class="card-sf">R3_S300_WellLeper</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p1);border-color:var(--p1)">P1 HERO</span><span class="flag-t ft-tbc">Ref Needed</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Flag / Note</div>
+          <div class="note-txt">Wait for COSM to provide timing test and vignette effects before PXO comp can close:<br>— Subtle background shake during chase<br>— Pulsing vignette to emphasize chase moment<br><br>PXO comp is waiting on this Cosm deliverable. ENV work (power lines, grass colour, sky, streaking fix) can proceed independently.</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Position / Solution</div>
+          <div class="ask-txt"><strong>Confirming COSM will handle vignettes — please provide timing test and vignette ref ASAP.</strong><br><br>P1 Hero shot — please treat as urgent. PXO comp cannot close without the Cosm-supplied timing.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card tbc">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p2)">520</div>
+        <div class="card-shot"><div class="card-sn">Knife Return</div><div class="card-sf">R6_S520_KnifeReturn</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p2);border-color:var(--p2)">P2-3</span><span class="flag-t ft-tbc">Direction Needed</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Flag / Note</div>
+          <div class="note-txt">Line up balloon string tighter at specified moment in Frame — the specific Frame IO timecode has not been communicated to PXO. Cannot align the string without a TC reference.<br><br>Grass on right is also animating — see Lucas 6/9 capture for reference.</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Position / Solution</div>
+          <div class="ask-txt"><strong>Please provide the Frame IO TC for the balloon string moment.</strong><br><br>All other balloon notes (color, fresnel, saturation, chimney, HDR) and ENV notes can proceed immediately. The string timing is the only blocked item — a timecode in the Frame IO comment will unblock it quickly.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card scope">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p2)">730</div>
+        <div class="card-shot"><div class="card-sn">Mind Blown</div><div class="card-sf">R8_S730_MindBlown</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p2);border-color:var(--p2)">P2-3</span><span class="flag-t ft-scope">Scope Risk</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Flag / Note</div>
+          <div class="note-txt">Improve floating chunks to match film — color, thickness, more pieces emanating out. Need red blood bits in addition to outside white stuff — see Frame IO.<br><br>Pieces coming out too late — need wider where film and sim meet. Refine floating blood — Cosm to mark up blood position.<br><br>⚑ PXO concerned with time remaining to action this fully. May need more creative leniency to hit 12K screening.</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Position / Solution</div>
+          <div class="ask-txt"><strong>Confirm direction from COSM — and please send blood position markup as soon as possible.</strong><br><br>PXO will aim to address the priority floating chunk elements. The sooner the blood markup arrives from Cosm, the better the chance this is addressed in full before 06/26 deadline.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card tbc">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p2)">700</div>
+        <div class="card-shot"><div class="card-sn">Fighting It</div><div class="card-sf">R8_S700_FightingIt</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p2);border-color:var(--p2)">P2-3</span><span class="flag-t ft-tbc">Direction Needed</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Flag / Note</div>
+          <div class="note-txt">Refine blood animation — see Cosm reference. Better pass on flashlight work — see Frame.<br><br>Blood animation direction needs to be confirmed from COSM before PXO can proceed with the FX pass. ENV (Georgie and Bill shadow direction) can proceed independently.</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Position / Solution</div>
+          <div class="ask-txt"><strong>Confirm direction from COSM on blood animation — please share Cosm reference.</strong><br><br>Live session is scheduled (Winrik × Cosm — Body Anim & Georgie Shadow, see Live Sessions tab). PXO will action the blood FX pass once direction is locked in session. P2-3 deadline: 06/26.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="batch-div" style="border-left-color:var(--p5)"><span style="color:var(--p5)">●</span> P5 · CBB · Time Permitting</div>
+
+    <div class="flag-card lowprob">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p5)">060</div>
+        <div class="card-shot"><div class="card-sn">Drain Bite</div><div class="card-sf">R1_S060_DrainBite</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p5);border-color:var(--p5)">P5</span><span class="flag-t ft-tbc">Direction TBC</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Flag / Note</div>
+          <div class="note-txt">Add 2D blood splat card from behind film on chomp then fade — direction from Cosm needed on blood splatter before PXO can action.<br><br>Water tint to be tested by Cosm on their end. P5 — will be picked up if time allows after critical batches.</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Position / Solution</div>
+          <div class="ask-txt">PXO will aim to pick this off — flagged easy/medium complexity and a good candidate if capacity opens up after P2/P3 wrap. No guarantee given the P5 priority, but we'll try.<br><br><strong>Cosm to confirm blood splatter direction when possible.</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card lowprob">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p5)">110</div>
+        <div class="card-shot"><div class="card-sn">School Ext Bus</div><div class="card-sf">R1_S110_SchoolExtBus</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p5);border-color:var(--p5)">P5</span><span class="flag-t ft-tbc">Direction TBC</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Flag / Note</div>
+          <div class="note-txt">Cosm to cut this together using 3 static cameras: CU, wide, other side. Cut from wide to other side at 01:13:45:08 — before Patrick launches the Kippah. Cosm to handle the edit.<br><br>What exactly does PXO need to render for Cosm to work with? Bowers car and contact shadows can proceed independently.</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Position / Solution</div>
+          <div class="ask-txt">PXO can begin Bowers car and contact shadows now. Camera work will hold until Cosm confirms the 3-camera deliverable format.<br><br><strong>Please confirm what renders PXO needs to deliver for Cosm to cut with</strong> — this is P5 priority so no hard rush, but a quick answer helps PXO plan.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="batch-div" style="border-left-color:var(--p6)"><span style="color:var(--p6)">●</span> P6 · CBB · Optional</div>
+
+    <div class="flag-card lowprob">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--p6)">610</div>
+        <div class="card-shot"><div class="card-sn">Wagon Opens</div><div class="card-sf">R7_S610_WagonOpens</div></div>
+        <div class="card-badges"><span class="prio-b" style="color:var(--p6);border-color:var(--p6)">P6</span><span class="flag-t ft-lowprob">Extended Note List</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Flag / Note</div>
+          <div class="note-txt">This shot carries a very long note list relative to its P6/CBB priority — Parts 1, 2, and 3 each have ENV, ANIM, and RNDR notes across floating bodies, mouth relight, jaw fill light, arch removal, and lighting overhaul.<br><br><strong>[1]</strong> Part 1: Eliminate floating bodies using vignette or mask — confirm vignette timing.<br><strong>[2]</strong> CBB: Remove screen left white arch near ground — confirm arch location in ENV before action.</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Position / Note</div>
+          <div class="ask-txt">PXO will aim to pick off simpler items from this note list if capacity opens after critical batches wrap. The floating body mask/vignette and arch investigation are open questions that need Cosm direction first.<br><br>Given this is P6 with a disproportionately large note set, PXO cannot guarantee full coverage — quick wins will be prioritised, more involved passes (mouth relight, arch, body reveal approach) may not make the 07/03 window.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="batch-div" style="border-left-color:var(--border)">⚑ Global — Applies Across All Shots</div>
+
+    <div class="flag-card global">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--accent)">ALL</div>
+        <div class="card-shot"><div class="card-sn">P5 / P6 CBB Batches</div><div class="card-sf">22 optional shots — P5 (4) + P6 (18)</div></div>
+        <div class="card-badges"><span class="flag-t ft-global">P5 / P6 Reminder</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Flag / Note</div>
+          <div class="note-txt">P5 and P6 are CBB/optional batches. The team will aim to address as many of these as capacity allows once the critical P1–P3 batches are locked. We'll prioritise the simpler, faster-to-action notes first across these two groups.</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Position / Note</div>
+          <div class="ask-txt">We want to be transparent: given the volume of critical notes in P1/P2/P3 and the render window ahead, we can't promise everything in P5/P6 will get addressed for 07/09. We'll aim to pick off the low-hanging fruits — quick fixes, shots already near render ready — and flag to you as we go.<br><br>Three shots (S260, S450, S560) are already at render-ready and will post early. Any remaining P5/P6 work that doesn't make 07/07 can be evaluated for the 07/24 integration final.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card global">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--accent)">ALL</div>
+        <div class="card-shot"><div class="card-sn">Vignettes & Fades</div><div class="card-sf">Global rule — all 73 shots</div></div>
+        <div class="card-badges"><span class="flag-t ft-global">Global Rule</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Flag / Note</div>
+          <div class="note-txt">Cosm controls ALL vignettes and fades impacting the full scene. PXO does not bake in any fades. This is referenced across multiple shots (S200, S310, S435, S440 etc.) and applies globally.</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Position / Note</div>
+          <div class="ask-txt">Reminder to Cosm: please do not request baked fades from PXO. All fades will be left for Cosm to handle on your end. If any individual shot requires an exception, please flag it specifically and we will evaluate case by case.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card hard">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--c-hard)">ALL</div>
+        <div class="card-shot"><div class="card-sn">Major Note Intake Closed</div><div class="card-sf">Global — 6/12 notes are the primary reference set</div></div>
+        <div class="card-badges"><span class="flag-t ft-hard">Note Cutoff</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Flag / Note</div>
+          <div class="note-txt">The 6/12 COSM notes represent the primary and final set of client direction for this delivery cycle. Major new notes beyond this point are not expected to be incorporated into the current schedule. PXO is now in active execution mode.</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Position / Note</div>
+          <div class="ask-txt">If anything genuinely critical was missed in the 6/12 notes, please raise it as a specific flag and PXO leadership will evaluate on a case-by-case basis. We'll do our best to accommodate where possible — but given the render timeline ahead, we can't make promises on additions at this stage.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-card hard">
+      <div class="card-head">
+        <div class="card-id" style="color:var(--c-hard)">ALL</div>
+        <div class="card-shot"><div class="card-sn">Render Window Protection</div><div class="card-sf">Global — farm policy</div></div>
+        <div class="card-badges"><span class="flag-t ft-hard">Policy</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-note">
+          <div class="col-lbl">Flag / Note</div>
+          <div class="note-txt">PXO has secured 50+ Blackwell RTX 6000 Pro nodes for 12K rendering — a significantly larger and faster farm than any external cloud provider option. Once shots enter full 12K render (Phase 5), no changes can be made. Render windows must be uninterrupted.</div>
+        </div>
+        <div class="card-ask">
+          <div class="col-lbl">PXO Position / Note</div>
+          <div class="ask-txt">Per-batch render window dates will be shared with Cosm as we approach each deadline. Estimated render durations will follow once first 12K test renders are complete this week.<br><br>During active render windows, we ask Cosm to hold all new feedback and session requests. We will communicate clearly when windows open and close.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tab-callouts -->
+
+  <div class="footer">PXO Innovation Lab · COSM FLOAT · Delivery Expectations + Flag List · 06/16/2026</div>
+</div>
+
+<script>
+// ─── TAB SWITCHING ───────────────────────────────────────────────
+function showTab(tab) {
+  ['delivery','sessions','callouts'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = t === tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', ['delivery','sessions','callouts'][i] === tab);
+  });
+}
+
+// ─── GANTT CHART ─────────────────────────────────────────────────
+const dates = [
+  '06-14','06-15','06-16','06-17','06-18','06-19','06-20','06-21',
+  '06-22','06-23','06-24','06-25','06-26','06-27','06-28','06-29',
+  '06-30','07-01','07-02','07-03','07-04','07-05','07-06','07-07',
+  '07-08','07-09','07-24'
+];
+
+// date index lookup
+const di = {}; dates.forEach((d,i) => di[d] = i);
+
+// shots: [id, shortname, class, prep, workStart, workEnd, contStart, contEnd, fin]
+// Matches spreadsheet columns AI–BI exactly
+// prep = 06-14 (Prep day for all); workStart/workEnd = coloured batch cells; cont = contingency weekend; fin = 12K FIN
+const shots = [
+  // P1 — continuous from 06-15 to 07-05
+  ['160','AlleyToSheep','p1','06-14','06-15','07-05','07-06','07-06','07-07'],
+  ['170','Synagogue','p1','06-14','06-15','07-05','07-06','07-06','07-07'],
+  ['200','LibraryScare','p1','06-14','06-15','07-05','07-06','07-06','07-07'],
+  ['230','PatrickDies','p1','06-14','06-15','07-05','07-06','07-06','07-07'],
+  ['300','WellLeper','p1','06-14','06-15','07-05','07-06','07-06','07-07'],
+  ['305','Balloons','p1','06-14','06-15','07-05','07-06','07-06','07-07'],
+  ['310','BevBloodBath','p1','06-14','06-15','07-05','07-06','07-06','07-07'],
+  ['320','BillsFloods','p1','06-14','06-15','07-05','07-06','07-06','07-07'],
+  ['390','GaragePenny','p1','06-14','06-15','07-05','07-06','07-06','07-07'],
+  ['430','ClownHeads','p1','06-14','06-15','07-05','07-06','07-06','07-07'],
+  ['435','GooAndDoors','p1','06-14','06-15','07-05','07-06','07-06','07-07'],
+  ['710','BillCaught','p1','06-14','06-15','07-05','07-06','07-06','07-07'],
+  ['720','FinalFight','p1','06-14','06-15','07-05','07-06','07-06','07-07'],
+    // P2-1 — 06-15 to 06-19; contingency 06-20/21
+  ['030','BillBedroom','p2a','06-14','06-15','06-19','06-20','06-21','07-07'],
+  ['050','DerryDrain','p2a','06-14','06-15','06-19','06-20','06-21','07-07'],
+  ['055','S055_Drain','p2a','06-14','06-15','06-19','06-20','06-21','07-07'],
+  ['070','ItTitleSeq','p2a','06-14','06-15','06-19','06-20','06-21','07-07'],
+  ['150','DerryDTIntro','p2a','06-14','06-15','06-19','06-20','06-21','07-07'],
+  ['210','BenPunched','p2a','06-14','06-15','06-19','06-20','06-21','07-07'],
+  ['220','SewerTease','p2a','06-14','06-15','06-19','06-20','06-21','07-07'],
+  ['270','BevHaircut','p2a','06-14','06-15','06-19','06-20','06-21','07-07'],
+  ['290','BensRoom','p2a','06-14','06-15','06-19','06-20','06-21','07-07'],
+  ['540','BevFaceSmash','p2a','06-14','06-15','06-19','06-20','06-21','07-07'],
+  ['670','ChaseGeorgie','p2a','06-14','06-15','06-19','06-20','06-21','07-07'],
+    // P2-2 — 06-15 to 06-19; contingency 06-20/21
+  ['280','LakeJump','p2b','06-14','06-15','06-19','06-20','06-21','07-07'],
+  ['360','RockFight','p2b','06-14','06-15','06-19','06-20','06-21','07-07'],
+  ['380','DerryParade','p2b','06-14','06-15','06-19','06-20','06-21','07-07'],
+  ['440','PokerFace','p2b','06-14','06-15','06-19','06-20','06-21','07-07'],
+  ['530','Patricide','p2b','06-14','06-15','06-19','06-20','06-21','07-07'],
+  ['600','ToTheWell','p2b','06-14','06-15','06-19','06-20','06-21','07-07'],
+  ['630','StanleyLost','p2b','06-14','06-15','06-19','06-20','06-21','07-07'],
+  ['640','LookForStan','p2b','06-14','06-15','06-19','06-20','06-21','07-07'],
+  ['680','WaterCorpses','p2b','06-14','06-15','06-19','06-20','06-21','07-07'],
+    // P2-3 — 06-22 to 06-26; contingency 06-27/28
+  ['250','PharmaTheft','p2c','06-14','06-22','06-26','06-27','06-28','07-07'],
+  ['340','BevCleanUp','p2c','06-14','06-22','06-26','06-27','06-28','07-07'],
+  ['400','WelHousRally','p2c','06-14','06-22','06-26','06-27','06-28','07-07'],
+  ['410','WellHousIntro','p2c','06-14','06-22','06-26','06-27','06-28','07-07'],
+  ['420','LeperCrash','p2c','06-14','06-22','06-26','06-27','07-03','07-07'],
+  ['520','KnifeReturn','p2c','06-14','06-22','06-26','06-27','06-28','07-07'],
+  ['550','DieIfYouTry','p2c','06-14','06-22','06-26','06-27','06-28','07-07'],
+  ['590','WellRally','p2c','06-14','06-22','06-26','06-27','06-28','07-07'],
+  ['620','HenryFalls','p2c','06-14','06-22','06-26','06-27','06-28','07-07'],
+  ['690','BevFloating','p2c','06-14','06-22','06-26','06-27','06-28','07-07'],
+  ['700','FightingIt','p2c','06-14','06-22','06-26','06-27','07-03','07-07'],
+  ['730','MindBlown','p2c','06-14','06-22','06-26','06-27','06-28','07-07'],
+  ['740','BodiesFall','p2c','06-14','06-22','06-26','06-27','06-28','07-07'],
+  ['750','BloodOath','p2c','06-14','06-22','06-26','06-27','06-28','07-07'],
+    // P3 — 06-22 to 06-26; contingency 06-27/28
+  ['010','OpenLogos','p3','06-14','06-22','06-26','06-27','06-28','07-07'],
+  ['180','EdLivingroom','p3','06-14','06-22','06-26','06-27','06-28','07-07'],
+  ['650','StanAttacked','p3','06-14','06-22','06-26','06-27','06-28','07-07'],
+  ['660','SavingStan','p3','06-14','06-22','06-26','06-27','06-28','07-07'],
+    // P5 — 06-22 to 06-26; contingency 06-27/28
+  ['060','DrainBite','p5','06-14','06-22','06-26','06-27','06-28','07-07'],
+  ['100','SchoolExtWS','p5','06-14','06-22','06-26','06-27','06-28','07-07'],
+  ['110','SchoolExtBus','p5','06-14','06-22','06-26','06-27','06-28','07-07'],
+  ['120','SchoolForest','p5','06-14','06-22','06-26','06-27','06-28','07-07'],
+    // P6 — 06-29 to 07-03; contingency 07-04/05
+  ['020','BillHomeExt','p6','06-14','06-29','07-03','07-04','07-05','07-07'],
+  ['040','BillBasement','p6','06-14','06-29','07-03','07-04','07-05','07-07'],
+  ['080','SheepSlaught','p6','06-14','06-29','07-03','07-04','07-05','07-07'],
+  ['090','SchoolExtCU','p6','06-14','06-29','07-03','07-04','07-05','07-07'],
+  ['130','BurbsForest','p6','06-14','06-29','07-03','07-04','07-05','07-07'],
+  ['140','BillsGarage','p6','06-14','06-29','07-03','07-04','07-05','07-07'],
+  ['190','DerBurbBike','p6','06-14','06-29','07-03','07-04','07-05','07-07'],
+  ['240','Forest2Alley','p6','06-14','06-29','07-03','07-04','07-05','07-07'],
+  ['260','AlleyBandaid✅','p6','06-14','06-15','06-15','06-16','06-16','07-07'],
+  ['350','PreRockFight','p6','06-14','06-29','07-03','07-04','07-05','07-07'],
+  ['450','WellReveal✅','p6','06-14','06-15','06-15','06-16','06-16','07-07'],
+  ['480','TheBreakup','p6','06-14','06-29','07-03','07-04','07-05','07-07'],
+  ['500','HenryShotAt','p6','06-14','06-29','07-03','07-04','07-05','07-07'],
+  ['560','SearchForBev✅','p6','06-14','06-15','06-15','06-16','06-16','07-07'],
+  ['570','Placebo','p6','06-14','06-29','07-03','07-04','07-05','07-07'],
+  ['580','BikeToWell','p6','06-14','06-29','07-03','07-04','07-05','07-07'],
+  ['610','WagonOpens','p6','06-14','06-29','07-03','07-04','07-05','07-07'],
+  ['760','EndCredits','p6','06-14','06-29','07-03','07-04','07-05','07-07'],
+];
+
+const colorClass = { p1:'gc-p1', p2a:'gc-p2', p2b:'gc-p2', p2c:'gc-p2', p3:'gc-p3', p5:'gc-p5', p6:'gc-p6' };
+const priorityLabel = { p1:'P1 · HERO BATCH', p2a:'P2-1 · PRIORITY BATCH — Quick / Easy', p2b:'P2-2 · PRIORITY BATCH — High', p2c:'P2-3 · PRIORITY BATCH — High', p3:'P3 · REGULAR BATCH', p5:'P5 · CBB BATCH', p6:'P6 · CBB OPTIONAL' };
+
+function buildGantt() {
+  const tbl = document.getElementById('ganttTable');
+
+  // header row with month labels
+  const mRow = document.createElement('tr');
+  const mth0 = document.createElement('th'); mth0.className = 'shot-col'; mRow.appendChild(mth0);
+  let lastMonth = '';
+  dates.forEach(d => {
+    const th = document.createElement('th');
+    const month = d.slice(0,2) === '06' ? 'JUN' : (d === '07-24' ? 'JUL' : 'JUL');
+    if (month !== lastMonth) { th.textContent = month; lastMonth = month; th.style.color = 'var(--muted)'; th.style.fontSize = '8px'; }
+    mRow.appendChild(th);
+  });
+
+  // date header
+  const hRow = document.createElement('tr');
+  const th0 = document.createElement('th'); th0.className = 'shot-col'; th0.textContent = 'Shot'; hRow.appendChild(th0);
+  const milestones = {'06-19':'#D07830','06-26':'#D07830','07-03':'#5A7A30','07-05':'#D04040','07-07':'#9EC0D2','07-09':'#D04040','07-24':'#666'};
+  dates.forEach(d => {
+    const th = document.createElement('th');
+    if (milestones[d]) { th.style.color = milestones[d]; th.style.fontWeight = '700'; }
+    th.textContent = d.slice(3);
+    th.title = d;
+    hRow.appendChild(th);
+  });
+
+  const thead = document.createElement('thead');
+  thead.appendChild(mRow);
+  thead.appendChild(hRow);
+  tbl.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  let lastPrio = null;
+
+  shots.forEach(shot => {
+    const [id, nm, prio, prep, ws, we, cs, ce, fin] = shot;
+    if (prio !== lastPrio) {
+      const gr = document.createElement('tr');
+      gr.className = 'gantt-group';
+      const gtd = document.createElement('td');
+      gtd.colSpan = dates.length + 1;
+      gtd.textContent = priorityLabel[prio];
+      gr.appendChild(gtd);
+      tbody.appendChild(gr);
+      lastPrio = prio;
+    }
+
+    const tr = document.createElement('tr');
+    const tdShot = document.createElement('td');
+    tdShot.className = 'shot-info';
+    const prioColor = prio.startsWith('p2') ? 'p2' : prio;
+    tdShot.innerHTML = `<div class="shot-id-g" style="color:var(--${prioColor})">${id.replace('✅','')}</div><div class="shot-nm-g">${nm}</div>`;
+    tr.appendChild(tdShot);
+
+    const prepI = di[prep];
+    const wsI = di[ws]; const weI = di[we];
+    const csI = di[cs]; const ceI = di[ce];
+
+    const cellLabels = { p1:'P1\nHERO', p2a:'P2-1', p2b:'P2-2', p2c:'P2-3', p3:'P3', p5:'P5', p6:'P6' };
+    dates.forEach((d, i) => {
+      const td = document.createElement('td');
+      td.className = 'gantt-cell';
+      const colors = { p1:'#D04040', p2a:'#D07830', p2b:'#C87020', p2c:'#B86010', p3:'#C8A820', p5:'#2A8A9A', p6:'#5A7A30' };
+      if (d === '07-07') {
+        // 12K FIN always wins on this column — black across all shots
+        td.style.cssText = 'background:#111111;border-color:#555;';
+        td.innerHTML = `<div style="font-size:6px;font-weight:700;color:rgba(255,255,255,0.9);text-align:center;line-height:1.1;padding-top:4px;">12K<br>FIN</div>`;
+      } else if (i === prepI && wsI > prepI) {
+        td.style.cssText = 'background:#2A2A2E;';
+        td.innerHTML = `<div style="font-size:7px;font-weight:700;color:#666;text-align:center;line-height:28px;letter-spacing:0.05em">Prep</div>`;
+      } else if (i >= wsI && i <= weI) {
+        td.style.cssText = `background:${colors[prio]};`;
+        const lbl = cellLabels[prio] || prio.toUpperCase();
+        td.innerHTML = `<div style="font-size:6px;font-weight:700;color:rgba(255,255,255,0.9);text-align:center;line-height:1.1;padding-top:8px;white-space:pre;">${lbl}</div>`;
+      } else if (i >= csI && i <= ceI) {
+        td.style.cssText = 'background:#444;';
+        td.innerHTML = `<div style="font-size:6px;font-weight:700;color:rgba(255,255,255,0.6);text-align:center;line-height:28px;">Cont.</div>`;
+      }
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+
+  tbl.appendChild(tbody);
+}
+
+buildGantt();
+</script>
+</body>
+</html>
